@@ -1,24 +1,24 @@
+// run this locally!
+// npx hardhat run scripts/run.js   
+
 const main = async () => {
-  // The first return is the deployer, the second is a random account
-  const [owner, randomPerson] = await hre.ethers.getSigners();
-  const domainContractFactory = await hre.ethers.getContractFactory("Domains");
-  const domainContract = await domainContractFactory.deploy();
+  const domainContractFactory = await hre.ethers.getContractFactory('Domains');
+  // We pass in "morie" to the constructor when deploying
+  const domainContract = await domainContractFactory.deploy("morie");
   await domainContract.deployed();
+
   console.log("Contract deployed to:", domainContract.address);
-  console.log("Contract deployed by:", owner.address);
 
-  let txn = await domainContract.register("mfdoom");
+  // We're passing in a second variable - value. This is the moneyyyyyyyyyy
+  let txn = await domainContract.register("moondog",  {value: hre.ethers.utils.parseEther('0.1')});
   await txn.wait();
 
-  const domainAddress = await domainContract.getAddress("mfdoom");
-  console.log("Owner of domain mfdoom:", domainAddress);
+  const address = await domainContract.getAddress("moondog");
+  console.log("Owner of domain moondog:", address);
 
-  // Trying to set a record that doesn't belong to me!
-  txn = await domainContract
-    .connect(randomPerson)
-    .setRecord("mfdoom", "Haha my domain now!");
-  await txn.wait();
-};
+  const balance = await hre.ethers.provider.getBalance(domainContract.address);
+  console.log("Contract balance:", hre.ethers.utils.formatEther(balance));
+}
 
 const runMain = async () => {
   try {
